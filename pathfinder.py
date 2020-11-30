@@ -16,7 +16,7 @@ import sys
 
 width = 720
 height = 440
-rez = 20
+rez = 40
 
 display = pygame.display.set_mode((width, height))
 pygame.display.set_caption('A* Pathfinding')
@@ -124,9 +124,9 @@ class Block(object):
 # ---------------------------------------------------------------function path----------------------------------------------------------#
 
 
-def reconstruct_path(camefrom, current, draw):
-    while current in camefrom:
-        current = camefrom[current]
+def reconstruct_path(pathlist, current, draw):
+    while current in pathlist:
+        current = pathlist[current]
         current.make_path()
         draw()
 
@@ -162,7 +162,7 @@ def a_star(draw, grid, start, end):
                for rows in grid.board for block in rows}
     f_score[start] = heuristic(start, end)
 
-    open_set_hash = {start}
+    closed_set = {start}
 
     while not open_set.empty():
         for event in pygame.event.get():
@@ -170,7 +170,7 @@ def a_star(draw, grid, start, end):
                 pygame.quit()
 
         current = open_set.get()[2]
-        open_set_hash.remove(current)
+        closed_set.remove(current)
 
         if current.pos == end.pos:
             reconstruct_path(came_from, end, draw)
@@ -187,11 +187,11 @@ def a_star(draw, grid, start, end):
                 g_score[neighbor] = temp_g
                 f_score[neighbor] = g_score[neighbor] + \
                     heuristic(neighbor, end)
-                if neighbor not in open_set_hash:
+                if neighbor not in closed_set:
                     count += 1
                     open_set.put(
                         (f_score[neighbor], count, neighbor))
-                    open_set_hash.add(neighbor)
+                    closed_set.add(neighbor)
                     neighbor.make_open()
 
             draw()
